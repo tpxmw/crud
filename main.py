@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 app = FastAPI()
 templates = Jinja2Templates(directory='templates')
 
@@ -45,6 +46,26 @@ def post_list(request: Request):
     )
 
 
+
+#사용자가 데이터 입력할 수 있는 페이지 제공
+@app.get('/posts/new')
+def post_new(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name='new.html'
+    )
+
+
+#사용자가 넘겨준 데이터를 저장 
+@app.post('/posts/create')
+def post_create(title: str = Form(), content: str = Form()):
+    # return {'t': title, 'c': content}
+    new_id = max(posts.keys()) + 1
+    posts[new_id] = {'id' : 3, 'title': title, 'content': content}
+
+    return RedirectResponse(f'/posts/{new_id}', status_code=303)
+
+    
 #하나의 게시물 출력
 @app.get('/posts/{post_id}')
 def post_detail(request: Request, post_id: int):
